@@ -1,7 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <link rel="icon" type="image/png" href="ivo-logo.png">
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Iron Vortex — Tryout Application</title>
@@ -100,8 +99,8 @@
   }
 
   .logo-ring img {
-    width: 220px;
-    height: 220px;
+    width: 160px;
+    height: 160px;
     object-fit: contain;
     display: block;
     filter: drop-shadow(0 0 22px rgba(200,30,30,0.65)) drop-shadow(0 0 6px rgba(200,30,30,0.4));
@@ -465,7 +464,7 @@
     <div class="logo-ring">
       <img
         id="logo-img"
-        src="ivo-logo.png"
+        src="662406617_1538577477840986_6750659709386332807_n.jpg"
         alt="Iron Vortex Logo"
         onerror="this.style.display='none'; document.getElementById('logo-fallback').style.display='flex';"
       />
@@ -644,7 +643,7 @@
     <p>Iron Vortex will review your application. Stay ready, soldier.</p>
   </div>
 
-  <div class="footer">Iron Vortex Gaming &bull; Recruitment Division &bull; 2026</div>
+  <div class="footer">Iron Vortex Gaming &bull; Recruitment Division &bull; 2025</div>
 
 </div><!-- /page -->
 
@@ -652,16 +651,16 @@
   function submitForm() {
     clearErrors();
 
-    var errors = [];
     var name = document.getElementById('f-name');
     var age  = document.getElementById('f-age');
     var uid  = document.getElementById('f-uid');
+    var hasError = false;
 
-    if (!name.value.trim()) { markInvalid(name); errors.push('Full Name'); }
-    if (!age.value.trim())  { markInvalid(age);  errors.push('Age'); }
-    if (!uid.value.trim())  { markInvalid(uid);  errors.push('UID'); }
+    if (!name.value.trim()) { markInvalid(name); hasError = true; }
+    if (!age.value.trim())  { markInvalid(age);  hasError = true; }
+    if (!uid.value.trim())  { markInvalid(uid);  hasError = true; }
 
-    if (errors.length) {
+    if (hasError) {
       var btn = document.getElementById('submit-btn');
       btn.classList.add('shake');
       setTimeout(function() { btn.classList.remove('shake'); }, 400);
@@ -672,12 +671,48 @@
     btn.disabled = true;
     btn.textContent = 'Submitting…';
 
-    setTimeout(function() {
-      btn.style.display = 'none';
-      var msg = document.getElementById('success-msg');
-      msg.style.display = 'block';
-      msg.scrollIntoView({ behavior: 'smooth', block: 'center' });
-    }, 900);
+    var data = {
+      'Full Name':              name.value.trim(),
+      'Age':                    age.value.trim(),
+      'BR or MP Main':          document.getElementById('f-mode').value || 'N/A',
+      'Legendary Series':       document.getElementById('f-legend').value.trim() || 'N/A',
+      'Casual or Competitive':  (document.querySelector('input[name="playstyle"]:checked') || {}).value || 'N/A',
+      'Past Clan':              document.getElementById('f-clan').value.trim() || 'N/A',
+      'UID':                    uid.value.trim(),
+      'Time Zone':              document.getElementById('f-tz').value.trim() || 'N/A',
+      'Play Availability':      document.getElementById('f-avail').value.trim() || 'N/A',
+      'Joins Scrims/Tournaments': (document.querySelector('input[name="scrims"]:checked') || {}).value || 'N/A',
+      'Tournament Experience':  (document.querySelector('input[name="tourney"]:checked') || {}).value || 'N/A',
+      'Tournament Details':     document.getElementById('f-tourney-detail').value.trim() || 'N/A',
+      'Scrim Experience':       (document.querySelector('input[name="scrim-exp"]:checked') || {}).value || 'N/A',
+      'Achievements':           document.getElementById('f-achieve').value.trim() || 'None'
+    };
+
+    fetch('https://formspree.io/f/mpqogodg', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json'
+      },
+      body: JSON.stringify(data)
+    })
+    .then(function(res) {
+      if (res.ok) {
+        btn.style.display = 'none';
+        var msg = document.getElementById('success-msg');
+        msg.style.display = 'block';
+        msg.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      } else {
+        btn.disabled = false;
+        btn.textContent = 'Submit Application';
+        alert('Submission failed. Please try again.');
+      }
+    })
+    .catch(function() {
+      btn.disabled = false;
+      btn.textContent = 'Submit Application';
+      alert('Network error. Please check your connection and try again.');
+    });
   }
 
   function markInvalid(el) {
